@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>WhatImWatching</title>
+<meta name="description" content="Вспомни всё просмотренное аниме, поставь оценки и получи рекомендации по своему вкусу.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>WhatIm<span>Watching</span></h1>
+      <div class="sync">список хранится в этом браузере · <span id="srcLine">подключаюсь…</span></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="stSeen">0</b><small>посмотрено</small></div>
+      <div class="stat"><b id="stAvg">—</b><small>средняя оценка</small></div>
+      <div class="stat"><b id="stWant">0</b><small>в планах</small></div>
+    </div>
+  </header>
+
+  <nav role="tablist">
+    <button role="tab" data-tab="quiz" aria-selected="true">Вспомнить</button>
+    <button role="tab" data-tab="list" aria-selected="false">Мой список</button>
+    <button role="tab" data-tab="recs" aria-selected="false">Что посмотреть</button>
+  </nav>
+
+  <!-- ВСПОМНИТЬ -->
+  <section id="quiz" class="stack">
+    <article class="card" id="card">
+      <div class="tape"><span id="cRank">загрузка…</span><span id="cKind"></span></div>
+      <div class="cardbody">
+        <div class="poster"><img id="cImg" alt=""></div>
+        <div class="cinfo">
+          <h2 id="cTitle">&nbsp;</h2>
+          <div class="orig" id="cOrig"></div>
+          <div class="chips" id="cChips"></div>
+          <p class="syn" id="cSyn"></p>
+          <a id="cLink" href="#" target="_blank" rel="noopener" class="muted-link">страница на MyAnimeList ↗</a>
+        </div>
+      </div>
+      <div class="stampmark" id="stamp">СМОТРЕЛ</div>
+    </article>
+
+    <div class="actions" id="actions">
+      <button class="btn yes" id="bYes">Смотрел <kbd>→ / Y</kbd></button>
+      <button class="btn" id="bMaybe">Не помню <kbd>↓ / M</kbd></button>
+      <button class="btn no" id="bNo">Не смотрел <kbd>← / N</kbd></button>
+    </div>
+
+    <div class="rate" id="rate" hidden>
+      <p>Твоя оценка?</p>
+      <div class="scores" id="scores"></div>
+      <button class="linkbtn" id="bNoScore">Без оценки (Enter)</button>
+    </div>
+
+    <div class="subrow">
+      <span id="pText">Отмечено: 0</span>
+      <button class="linkbtn" id="bUndo">↶ Отменить последнее (Z)</button>
+    </div>
+    <div class="note" id="quizMsg" aria-live="polite"></div>
+  </section>
+
+  <!-- СПИСОК -->
+  <section id="list" class="stack" hidden>
+    <div class="searchbox">
+      <label for="sq">Добавить вручную</label>
+      <input id="sq" type="search" placeholder="Название аниме" autocomplete="off">
+      <ul class="results" id="sres"></ul>
+    </div>
+    <div class="filters">
+      <div class="seg" id="seg">
+        <button data-s="seen" aria-pressed="true">Смотрел <span></span></button>
+        <button data-s="want" aria-pressed="false">Хочу <span></span></button>
+        <button data-s="maybe" aria-pressed="false">Не помню <span></span></button>
+        <button data-s="no" aria-pressed="false">Не смотрел <span></span></button>
+        <button data-s="skip" aria-pressed="false">Не интересно <span></span></button>
+      </div>
+      <input id="q" type="search" placeholder="Поиск по списку">
+      <select id="sort" aria-label="Сортировка">
+        <option value="score">По оценке</option>
+        <option value="title">По названию</option>
+        <option value="year">По году</option>
+        <option value="recent">Недавно отмеченные</option>
+      </select>
+    </div>
+    <ul class="list" id="ul"></ul>
+    <details class="io">
+      <summary>Сохранить или перенести список</summary>
+      <div class="iobody">
+        <p>Список живёт только в этом браузере. Сохрани файл, чтобы не потерять его или перенести на другое устройство.</p>
+        <div class="row">
+          <button class="btn" id="bExport">Скачать список (.json)</button>
+          <label class="btn" for="fImport">Загрузить из файла</label>
+          <input type="file" id="fImport" accept=".json,application/json" hidden>
+        </div>
+        <label for="tImport">или вставь JSON сюда (например, экспорт из версии в Claude)</label>
+        <textarea id="tImport" rows="4" placeholder='{"v":1,"marks":{...}}  или  [{"title":"...","orig":"...","score":9,"status":"seen"}]'></textarea>
+        <button class="btn yes" id="bImport">Импортировать</button>
+        <div class="note" id="ioMsg" aria-live="polite"></div>
+      </div>
+    </details>
+  </section>
+
+  <!-- РЕКОМЕНДАЦИИ -->
+  <section id="recs" class="stack" hidden>
+    <div class="recintro">
+      <p id="recHint"></p>
+      <button class="btn yes big" id="bRec">Подобрать аниме</button>
+      <div class="note" id="recStatus" aria-live="polite"></div>
+    </div>
+    <div id="recBox"></div>
+    <div id="recMore" hidden>
+      <h3 class="eyebrow">Ещё варианты</h3>
+      <ul class="strip" id="recStrip"></ul>
+    </div>
+  </section>
+
+  <footer>Данные и постеры: Shikimori, AniList или MyAnimeList (через Jikan) — сайт сам выбирает тот, что отвечает.</footer>
+</div>
+<div class="toast" id="toast" hidden><span id="toastText"></span><button id="toastUndo">Отменить</button></div>
+<script src="app.js"></script>
+</body>
+</html>
